@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import '../database/task_table.dart';
+import '../models/task_model.dart';
 import 'add_task_page.dart';
+import 'edit_task_page.dart';
 
 class TasksPage extends StatefulWidget {
   const TasksPage({super.key});
@@ -9,30 +12,170 @@ class TasksPage extends StatefulWidget {
 }
 
 class _TasksPageState extends State<TasksPage> {
-  final List<Map<String, dynamic>> tasks = [
-    {
-      "title": "Membuat Laporan Praktikum PBO",
-      "deadline": "16 Okt 2025",
-      "progress": 0.8,
-      "status": "Hampir Selesai",
-      "color": Colors.indigoAccent,
-    },
-    {
-      "title": "Tugas Makalah Manajemen Proyek",
-      "deadline": "18 Okt 2025",
-      "progress": 0.4,
-      "status": "Dalam Proses",
-      "color": Colors.teal,
-    },
-    {
-      "title": "Presentasi Sistem Informasi",
-      "deadline": "20 Okt 2025",
-      "progress": 0.2,
-      "status": "Baru Dimulai",
-      "color": Colors.orangeAccent,
-    },
-  ];
+  List<TaskModel> tasks = [];
 
+  @override
+  void initState() {
+    super.initState();
+    loadTasks();
+  }
+
+  // LOAD DATA DARI DATABASE
+  void loadTasks() async {
+    final data = await TaskTable.getTasks();
+    setState(() => tasks = data);
+  }
+
+  // HAPUS DATA
+  void deleteTask(int id, String title) async {
+    await TaskTable.deleteTask(id);
+    loadTasks();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Tugas "$title" berhasil dihapus')),
+    );
+  }
+
+  // POPUP KONFIRMASI
+  void confirmDelete(TaskModel task) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Hapus Tugas"),
+        content: const Text("Yakin ingin menghapus tugas ini?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Batal"),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              deleteTask(task.id!, task.title);
+            },
+            child: const Text("Yakin"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // BOTTOM SHEET EDIT / HAPUS
+  void showTaskOptions(TaskModel task) {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit, color: Colors.blue),
+                title: const Text("Edit Tugas"),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => EditTaskPage(task: task),
+                    ),
+                  ).then((_) => loadTasks());
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title: const Text("Hapus Tugas"),
+                onTap: () {
+                  Navigator.pop(context);
+                  confirmDelete(task);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // UI CARD TUGAS
+  Widget buildTaskCard(TaskModel t) {
+    return GestureDetector(
+      onTap: () => showTaskOptions(t),
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Color(t.color).withOpacity(0.3)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black12.withOpacity(0.05),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            )
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.assignment_turned_in, size: 28, color: Color(t.color)),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    t.title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 8),
+
+            Row(
+              children: [
+                Icon(Icons.calendar_today, size: 16, color: Colors.grey[700]),
+                const SizedBox(width: 6),
+                Text(
+                  "Deadline: ${t.deadline}",
+                  style: TextStyle(color: Colors.grey[700]),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            LinearProgressIndicator(
+              value: t.progress,
+              minHeight: 8,
+              backgroundColor: Colors.grey[300],
+              valueColor: AlwaysStoppedAnimation<Color>(Color(t.color)),
+            ),
+
+            const SizedBox(height: 6),
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+              Text(t.status, style: const TextStyle(fontSize: 13)),
+              Text(
+                "${(t.progress * 100).round()}%",
+                style: const TextStyle(fontWeight: FontWeight.w600),
+              ),
+            ]),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // MAIN BUILD
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,130 +184,41 @@ class _TasksPageState extends State<TasksPage> {
         backgroundColor: Colors.white,
         elevation: 0,
         title: const Text(
-          'Daftar Tugas',
+          "Daftar Tugas",
           style: TextStyle(
-            color: Color(0xFF2D3436),
             fontWeight: FontWeight.bold,
+            color: Color(0xFF2D3436),
           ),
         ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        child: ListView.builder(
-          itemCount: tasks.length,
-          itemBuilder: (context, index) {
-            final t = tasks[index];
-            return Container(
-              margin: const EdgeInsets.only(bottom: 14),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12.withOpacity(0.05),
-                    blurRadius: 6,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
-                border: Border.all(
-                  color: (t["color"] as Color).withOpacity(0.3),
-                ),
+
+      body: tasks.isEmpty
+          ? const Center(
+              child: Text(
+                "Belum ada tugas",
+                style: TextStyle(color: Colors.grey),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.assignment_turned_in,
-                        color: t["color"],
-                        size: 28,
-                      ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: Text(
-                          t["title"],
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                            color: Color(0xFF2D3436),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        size: 16,
-                        color: Colors.grey[600],
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        "Deadline: ${t["deadline"]}",
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                          fontSize: 13.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: LinearProgressIndicator(
-                      minHeight: 8,
-                      value: t["progress"],
-                      backgroundColor: Colors.grey[300],
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        t["color"] as Color,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        t["status"],
-                        style: TextStyle(
-                          fontSize: 13.5,
-                          color: Colors.grey[800],
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      Text(
-                        "${(t["progress"] * 100).round()}%",
-                        style: TextStyle(
-                          fontSize: 13.5,
-                          color: Colors.grey[800],
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(20),
+              itemCount: tasks.length,
+              itemBuilder: (context, index) =>
+                  buildTaskCard(tasks[index]),
+            ),
+
       floatingActionButton: FloatingActionButton.extended(
+        backgroundColor: const Color(0xFF6C5CE7),
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text(
+          "Tambah Tugas",
+          style: TextStyle(color: Colors.white),
+        ),
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const AddTaskPage()),
-          );
+            MaterialPageRoute(builder: (_) => const AddTaskPage()),
+          ).then((_) => loadTasks());
         },
-        backgroundColor: const Color(0xFF6C5CE7),
-        label: const Text(
-          "Tambah Tugas",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-        ),
-        icon: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }

@@ -1,162 +1,192 @@
 import 'package:flutter/material.dart';
+import '../database/task_table.dart';
+import '../models/task_model.dart';
 
 class EditTaskPage extends StatefulWidget {
-  final Map<String, dynamic> taskData;
-  final Function(Map<String, dynamic>) onSave;
+  final TaskModel task;
 
-  const EditTaskPage({
-    super.key,
-    required this.taskData,
-    required this.onSave,
-  });
+  const EditTaskPage({super.key, required this.task});
 
   @override
   State<EditTaskPage> createState() => _EditTaskPageState();
 }
 
 class _EditTaskPageState extends State<EditTaskPage> {
-  final _formKey = GlobalKey<FormState>();
-  late TextEditingController _subjectController;
-  late TextEditingController _detailController;
-  late TextEditingController _dateController;
-  DateTime? _deadline;
+  final statusList = ["Baru Dimulai", "Dalam Proses", "Hampir Selesai"];
+
+  late TextEditingController titleC;
+  late TextEditingController deadlineC;
+  late String selectedStatus;
+  late double progressValue;
+  late Color selectedColor;
 
   @override
   void initState() {
     super.initState();
-    _subjectController = TextEditingController(text: widget.taskData['subject']);
-    _detailController = TextEditingController(text: widget.taskData['detail']);
-    _dateController = TextEditingController(text: widget.taskData['deadline']);
+
+    titleC = TextEditingController(text: widget.task.title);
+    deadlineC = TextEditingController(text: widget.task.deadline);
+    selectedStatus = widget.task.status;
+    progressValue = widget.task.progress;
+    selectedColor = Color(widget.task.color);
   }
 
   @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
+  void dispose() {
+    titleC.dispose();
+    deadlineC.dispose();
+    super.dispose();
+  }
 
+  // UPDATE DATABASE
+  void updateTask() async {
+    if (titleC.text.isEmpty || deadlineC.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Semua field wajib diisi")),
+      );
+      return;
+    }
+
+    final updated = TaskModel(
+      id: widget.task.id,
+      title: titleC.text,
+      deadline: deadlineC.text,
+      progress: progressValue,
+      status: selectedStatus,
+      color: selectedColor.value,
+    );
+
+    await TaskTable.updateTask(updated);
+
+    Navigator.pop(context);
+  }
+
+  // COLOR PICKER
+  Widget colorOption(Color color) {
+    return GestureDetector(
+      onTap: () => setState(() => selectedColor = color),
+      child: Container(
+        margin: const EdgeInsets.only(right: 12),
+        width: 28,
+        height: 28,
+        decoration: BoxDecoration(
+          color: color,
+          shape: BoxShape.circle,
+          border: Border.all(
+            width: selectedColor == color ? 3 : 1,
+            color: selectedColor == color ? Colors.black : Colors.grey,
+          ),
+        ),
+      ),
+    );
+  }
+
+  // BUILD
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
       appBar: AppBar(
+        title: const Text("Edit Tugas"),
         backgroundColor: Colors.white,
         elevation: 0,
-        title: const Text(
-          "Edit Tugas",
-          style: TextStyle(
-            color: Color(0xFF2D3436),
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        iconTheme: const IconThemeData(color: Color(0xFF2D3436)),
+        foregroundColor: Colors.black,
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
+
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+
+          const Text("Judul Tugas", style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: titleC,
+            decoration: inputStyle("Masukkan judul tugas"),
+          ),
+          const SizedBox(height: 16),
+
+          const Text("Deadline", style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: deadlineC,
+            decoration: inputStyle("Contoh: 20 Okt 2025"),
+          ),
+          const SizedBox(height: 16),
+
+          const Text("Status", style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 6),
+          DropdownButtonFormField(
+            value: selectedStatus,
+            decoration: inputStyle(""),
+            items: statusList
+                .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                .toList(),
+            onChanged: (v) => setState(() => selectedStatus = v!),
+          ),
+          const SizedBox(height: 20),
+
+          const Text("Progress", style: TextStyle(fontWeight: FontWeight.w600)),
+          Slider(
+            value: progressValue,
+            min: 0,
+            max: 1,
+            divisions: 10,
+            label: "${(progressValue * 100).round()}%",
+            activeColor: selectedColor,
+            onChanged: (v) => setState(() => progressValue = v),
+          ),
+          const SizedBox(height: 20),
+
+          const Text("Warna Label", style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 10),
+          Row(
             children: [
-              const Text(
-                "Perbarui detail tugasmu ✏️",
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight: FontWeight.w500,
-                  color: Color(0xFF636E72),
-                ),
-              ),
-              const SizedBox(height: 22),
-
-              TextFormField(
-                controller: _subjectController,
-                decoration: InputDecoration(
-                  labelText: 'Mata Kuliah',
-                  prefixIcon: const Icon(Icons.book_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Mata kuliah wajib diisi' : null,
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _detailController,
-                decoration: InputDecoration(
-                  labelText: 'Deskripsi Tugas',
-                  prefixIcon: const Icon(Icons.description_outlined),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                maxLines: 3,
-                validator: (v) =>
-                    v == null || v.isEmpty ? 'Deskripsi wajib diisi' : null,
-              ),
-              const SizedBox(height: 16),
-
-              TextFormField(
-                controller: _dateController,
-                readOnly: true,
-                decoration: InputDecoration(
-                  labelText: 'Deadline',
-                  prefixIcon: const Icon(Icons.calendar_today),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onTap: () async {
-                  final selectedDate = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime(2030),
-                  );
-                  if (selectedDate != null) {
-                    setState(() {
-                      _deadline = selectedDate;
-                      _dateController.text =
-                          "${selectedDate.day}-${selectedDate.month}-${selectedDate.year}";
-                    });
-                  }
-                },
-              ),
-              const SizedBox(height: 28),
-
-              ElevatedButton.icon(
-                icon: const Icon(Icons.save),
-                label: const Text(
-                  "Simpan Perubahan",
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: colorScheme.primary,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size.fromHeight(50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () {
-                  if (_formKey.currentState!.validate()) {
-                    widget.onSave({
-                      'subject': _subjectController.text,
-                      'detail': _detailController.text,
-                      'deadline': _dateController.text,
-                    });
-
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Text("Tugas berhasil diperbarui ✅"),
-                        backgroundColor: colorScheme.primary,
-                      ),
-                    );
-
-                    Navigator.pop(context);
-                  }
-                },
-              ),
+              colorOption(Colors.indigoAccent),
+              colorOption(Colors.teal),
+              colorOption(Colors.orangeAccent),
+              colorOption(Colors.redAccent),
+              colorOption(Colors.green),
             ],
           ),
-        ),
+
+          const SizedBox(height: 40),
+
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: updateTask,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF6C5CE7),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              child: const Text(
+                "Simpan Perubahan",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          )
+        ]),
       ),
+    );
+  }
+
+  InputDecoration inputStyle(String hint) {
+    return InputDecoration(
+      hintText: hint,
+      filled: true,
+      fillColor: Colors.white,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
     );
   }
 }
