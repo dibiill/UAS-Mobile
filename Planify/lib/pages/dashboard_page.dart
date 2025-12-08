@@ -1,7 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
+
+  @override
+  State<DashboardPage> createState() => _DashboardPageState();
+}
+
+class _DashboardPageState extends State<DashboardPage> {
+  String userName = "Pengguna";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserName();
+  }
+
+  Future<void> _loadUserName() async {
+    final prefs = await SharedPreferences.getInstance();
+    final name = prefs.getString('userName') ?? "Pengguna";
+    if (mounted) {
+      setState(() {
+        userName = name;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -16,10 +40,9 @@ class DashboardPage extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Greeting
-              const Text(
-                "Halo, Nabil 👋",
-                style: TextStyle(
+              Text(
+                "Halo, $userName",
+                style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF2D3436),
@@ -28,14 +51,10 @@ class DashboardPage extends StatelessWidget {
               const SizedBox(height: 4),
               const Text(
                 "Selamat datang di Planify — rencanakan harimu dengan lebih teratur!",
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Color(0xFF636E72),
-                ),
+                style: TextStyle(fontSize: 14, color: Color(0xFF636E72)),
               ),
               const SizedBox(height: 24),
 
-              // Ringkasan 3 fitur utama
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -61,9 +80,8 @@ class DashboardPage extends StatelessWidget {
               ),
               const SizedBox(height: 30),
 
-              // Jadwal Terdekat
               Text(
-                "📅 Jadwal Hari Ini",
+                "Jadwal Hari Ini",
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
@@ -85,9 +103,8 @@ class DashboardPage extends StatelessWidget {
               ),
               const SizedBox(height: 28),
 
-              // Tugas Terbaru
               Text(
-                "📝 Tugas Aktif",
+                "Tugas Aktif",
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
@@ -109,9 +126,8 @@ class DashboardPage extends StatelessWidget {
               ),
               const SizedBox(height: 28),
 
-              // Statistik Belajar
               Text(
-                "📈 Statistik Fokus Belajar",
+                "Statistik Fokus Belajar",
                 style: TextStyle(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
@@ -137,10 +153,7 @@ class DashboardPage extends StatelessWidget {
                   children: [
                     const Text(
                       "Total waktu fokus minggu ini",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF636E72),
-                      ),
+                      style: TextStyle(fontSize: 14, color: Color(0xFF636E72)),
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -166,14 +179,12 @@ class DashboardPage extends StatelessWidget {
                     const SizedBox(height: 8),
                     const Text(
                       "65% dari target mingguan",
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Color(0xFF636E72),
-                      ),
+                      style: TextStyle(fontSize: 13, color: Color(0xFF636E72)),
                     ),
                   ],
                 ),
               ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
@@ -181,7 +192,6 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  // --- Widget ringkasan (jadwal, tugas, fokus) ---
   Widget _buildSummaryCard({
     required String title,
     required String value,
@@ -218,19 +228,19 @@ class DashboardPage extends StatelessWidget {
           Text(
             title,
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 12,
-              color: Color(0xFF636E72),
-            ),
+            style: const TextStyle(fontSize: 12, color: Color(0xFF636E72)),
           ),
         ],
       ),
     );
   }
 
-  // --- Card Jadwal ---
   Widget _buildScheduleCard(
-      String matkul, String waktu, String lokasi, Color color) {
+    String matkul,
+    String waktu,
+    String lokasi,
+    Color color,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
@@ -270,9 +280,12 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  // --- Card Tugas ---
   Widget _buildTaskCard(
-      String title, String deadline, double progress, Color color) {
+    String title,
+    String deadline,
+    double progress,
+    Color color,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(16),
@@ -302,10 +315,7 @@ class DashboardPage extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             deadline,
-            style: const TextStyle(
-              fontSize: 13,
-              color: Color(0xFF636E72),
-            ),
+            style: const TextStyle(fontSize: 13, color: Color(0xFF636E72)),
           ),
           const SizedBox(height: 10),
           ClipRRect(

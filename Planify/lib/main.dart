@@ -8,13 +8,19 @@ import 'pages/tasks_page.dart';
 import 'pages/notes_page.dart';
 import 'pages/pomodoro_page.dart';
 import 'pages/profile_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-void main() {
-  runApp(const PlanifyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final prefs = await SharedPreferences.getInstance();
+  final isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+  runApp(PlanifyApp(isLoggedIn: isLoggedIn));
 }
 
 class PlanifyApp extends StatelessWidget {
-  const PlanifyApp({super.key});
+  final bool isLoggedIn;
+  const PlanifyApp({super.key, required this.isLoggedIn});
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +32,13 @@ class PlanifyApp extends StatelessWidget {
         useMaterial3: true,
         fontFamily: 'Roboto',
       ),
-      home: const MainNavigation(),
+      initialRoute: isLoggedIn ? '/main' : '/splash',
+      routes: {
+        '/splash': (context) => const SplashPage(),
+        '/login': (context) => const LoginPage(),
+        '/register': (context) => const RegisterPage(),
+        '/main': (context) => const MainNavigation(),
+      },
     );
   }
 }

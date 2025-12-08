@@ -31,9 +31,9 @@ class _TasksPageState extends State<TasksPage> {
     await TaskTable.deleteTask(id);
     loadTasks();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Tugas "$title" berhasil dihapus')),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text('Tugas "$title" berhasil dihapus')));
   }
 
   // POPUP KONFIRMASI
@@ -77,9 +77,7 @@ class _TasksPageState extends State<TasksPage> {
                   Navigator.pop(context);
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (_) => EditTaskPage(task: task),
-                    ),
+                    MaterialPageRoute(builder: (_) => EditTaskPage(task: task)),
                   ).then((_) => loadTasks());
                 },
               ),
@@ -114,7 +112,7 @@ class _TasksPageState extends State<TasksPage> {
               color: Colors.black12.withOpacity(0.05),
               blurRadius: 6,
               offset: const Offset(0, 3),
-            )
+            ),
           ],
         ),
         child: Column(
@@ -122,7 +120,11 @@ class _TasksPageState extends State<TasksPage> {
           children: [
             Row(
               children: [
-                Icon(Icons.assignment_turned_in, size: 28, color: Color(t.color)),
+                Icon(
+                  Icons.assignment_turned_in,
+                  size: 28,
+                  color: Color(t.color),
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -163,12 +165,13 @@ class _TasksPageState extends State<TasksPage> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-              Text(t.status, style: const TextStyle(fontSize: 13)),
-              Text(
-                "${(t.progress * 100).round()}%",
-                style: const TextStyle(fontWeight: FontWeight.w600),
-              ),
-            ]),
+                Text(t.status, style: const TextStyle(fontSize: 13)),
+                Text(
+                  "${(t.progress * 100).round()}%",
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
           ],
         ),
       ),
@@ -202,8 +205,7 @@ class _TasksPageState extends State<TasksPage> {
           : ListView.builder(
               padding: const EdgeInsets.all(20),
               itemCount: tasks.length,
-              itemBuilder: (context, index) =>
-                  buildTaskCard(tasks[index]),
+              itemBuilder: (context, index) => buildTaskCard(tasks[index]),
             ),
 
       floatingActionButton: FloatingActionButton.extended(

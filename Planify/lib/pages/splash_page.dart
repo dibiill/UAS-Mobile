@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'login_page.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -29,7 +28,7 @@ class _SplashPageState extends State<SplashPage>
     );
 
     _logoController.forward();
-    _timer = Timer(const Duration(milliseconds: 2300), () {
+    _timer = Timer(const Duration(seconds: 5), () {
       if (mounted) Navigator.of(context).pushReplacementNamed('/login');
     });
   }
@@ -83,7 +82,7 @@ class _SplashPageState extends State<SplashPage>
                 color: Colors.white.withOpacity(0.9),
                 fontSize: 14,
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -105,7 +104,11 @@ class _PlanifyLogo extends StatelessWidget {
         color: Colors.white.withOpacity(0.9),
       ),
       child: Center(
-        child: Icon(Icons.event_note, size: size * 0.55, color: Colors.deepPurple),
+        child: Icon(
+          Icons.event_note,
+          size: size * 0.55,
+          color: Colors.deepPurple,
+        ),
       ),
     );
   }
