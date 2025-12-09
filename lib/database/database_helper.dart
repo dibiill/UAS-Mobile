@@ -19,7 +19,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(path, version: 1, onCreate: _createDB,);
   }
 
   Future _createDB(Database db, int version) async {
@@ -31,6 +31,28 @@ class DatabaseHelper {
         password TEXT NOT NULL
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE schedule (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        time TEXT NOT NULL,
+        room TEXT NOT NULL,
+        detail TEXT NOT NULL,
+        date TEXT NOT NULL,
+        color INTEGER
+      )
+    ''');
+
+    await db.execute('''
+  CREATE TABLE notes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL,
+    scheduleId INTEGER,
+    FOREIGN KEY (scheduleId) REFERENCES schedule(id)
+  )
+''');
   }
 
   // Hash password biar aman
@@ -73,5 +95,92 @@ class DatabaseHelper {
       return result.first; // berisi id, name, email
     }
     return null;
+  }
+
+  // SCHEDULE CRUD
+  // INSERT
+  Future<int> insertSchedule(Map<String, dynamic> data) async {
+    final db = await instance.database;
+    return await db.insert("schedule", data);
+  }
+
+  // GET BY DATE
+  Future<List<Map<String, dynamic>>> getSchedulesByDate(String date) async {
+    final db = await instance.database;
+    return await db.query(
+      "schedule",
+      where: "date = ?",
+      whereArgs: [date],
+      orderBy: "time ASC",
+    );
+  }
+
+  // UPDATE
+  Future<int> updateSchedule(int id, Map<String, dynamic> data) async {
+    final db = await instance.database;
+    return await db.update(
+      "schedule",
+      data,
+      where: "id = ?",
+      whereArgs: [id],
+    );
+  }
+
+  // DELETE
+  Future<int> deleteSchedule(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      "schedule",
+      where: "id = ?",
+      whereArgs: [id],
+    );
+  }
+
+  // date picker
+  Future<List<String>> getAllScheduleDates() async {
+    final db = await instance.database;
+    final res = await db.rawQuery(
+      'SELECT DISTINCT date FROM schedule ORDER BY date ASC',
+    );
+    return res.map((e) => e['date'] as String).toList();
+  }
+
+  // GET ALL SCHEDULES (untuk cek apakah tabel kosong)
+Future<List<Map<String, dynamic>>> getAllSchedules() async {
+  final db = await instance.database;
+  return await db.query("schedule");
+}
+
+// NOTES CRUD
+Future<int> insertNote(Map<String, dynamic> data) async {
+    final db = await instance.database;
+    return await db.insert("notes", data);
+  }
+
+  Future<List<Map<String, dynamic>>> getNotes() async {
+    final db = await instance.database;
+    return await db.query(
+      "notes",
+      orderBy: "id DESC",
+    );
+  }
+
+  Future<int> updateNote(int id, Map<String, dynamic> data) async {
+    final db = await instance.database;
+    return await db.update(
+      "notes",
+      data,
+      where: "id = ?",
+      whereArgs: [id],
+    );
+  }
+
+  Future<int> deleteNote(int id) async {
+    final db = await instance.database;
+    return await db.delete(
+      "notes",
+      where: "id = ?",
+      whereArgs: [id],
+    );
   }
 }
