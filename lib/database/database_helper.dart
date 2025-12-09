@@ -53,6 +53,18 @@ class DatabaseHelper {
     FOREIGN KEY (scheduleId) REFERENCES schedule(id)
   )
 ''');
+
+    await db.execute('''
+  CREATE TABLE tasks (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      deadline TEXT NOT NULL,
+      progress REAL NOT NULL,
+      status TEXT NOT NULL,
+      color INTEGER NOT NULL
+      )
+''');
+
   }
 
   // Hash password biar aman
