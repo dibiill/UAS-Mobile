@@ -53,6 +53,7 @@ class _RegisterPageState extends State<RegisterPage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
       await prefs.setString('userName', name);
+      await prefs.setString('userEmail', email);
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(

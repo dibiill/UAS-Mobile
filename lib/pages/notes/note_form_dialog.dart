@@ -50,7 +50,7 @@ Future<bool?> showNoteFormDialog(
                       final schedules = snap.data ?? [];
 
                       return DropdownButtonFormField<int?>(
-                        value: scheduleId,
+                        initialValue: scheduleId,
                         isExpanded: true,
                         decoration: const InputDecoration(
                           labelText: "Terkait Jadwal (opsional)",

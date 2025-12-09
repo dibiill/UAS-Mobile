@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -8,7 +9,38 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  bool darkMode = false;
+  // Variabel untuk menampung data dinamis
+  String _userName = "Pengguna";
+  String _userEmail = "email@example.com";
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  // Mengambil data Nama dan Email yang disimpan saat Login/Register
+  Future<void> _loadUserData() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _userName = prefs.getString('userName') ?? "Nama Tidak Dikenal";
+      _userEmail = prefs.getString('userEmail') ?? "Belum ada email";
+    });
+  }
+
+  // Fungsi Logout
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.clear(); // Hapus sesi login
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Berhasil keluar dari akun")),
+      );
+      // Kembali ke halaman login dan hapus riwayat navigasi
+      Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,17 +69,22 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundColor: Colors.white,
             ),
             const SizedBox(height: 16),
-            const Text(
-              "Nabiilll",
-              style: TextStyle(
+            
+            // --- Nama User (Dinamis) ---
+            Text(
+              _userName, 
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF2D3436),
               ),
+              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
+            
+            // --- Role (Statis) ---
             const Text(
-              "Mahasiswa Sistem Informasi",
+              "Member Planify", 
               style: TextStyle(fontSize: 14, color: Color(0xFF636E72)),
             ),
             const SizedBox(height: 30),
@@ -56,30 +93,21 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildInfoTile(
               icon: Icons.email_outlined,
               title: "Email",
-              value: "biilll@planify.com",
-            ),
-            _buildInfoTile(
-              icon: Icons.phone_android,
-              title: "Nomor Telepon",
-              value: "+62 812-3456-7890",
+              value: _userEmail, // Menggunakan variabel dinamis
             ),
             _buildInfoTile(
               icon: Icons.school_outlined,
-              title: "Universitas",
-              value: "Universitas Singaperbangsa Karawang",
+              title: "Instansi / Sekolah",
+              value: "Universitas Singaperbangsa Karawang", 
             ),
-            _buildInfoTile(
-              icon: Icons.badge_outlined,
-              title: "NIM",
-              value: "231063125001",
-            ),
+            
             const SizedBox(height: 25),
 
             // --- Pengaturan Aplikasi ---
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Pengaturan Aplikasi",
+                "Lainnya",
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   fontSize: 16,
@@ -87,24 +115,14 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 10),
-            SwitchListTile(
-              title: const Text(
-                "Mode Gelap",
-                style: TextStyle(color: Color(0xFF2D3436)),
-              ),
-              value: darkMode,
-              onChanged: (val) {
-                setState(() => darkMode = val);
-              },
-              secondary: const Icon(Icons.dark_mode_outlined),
-              activeColor: const Color(0xFF6C5CE7),
-            ),
+            const SizedBox(height: 10),  
             ListTile(
               leading: const Icon(Icons.help_outline),
               title: const Text("Bantuan & Panduan"),
               trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-              onTap: () {},
+              onTap: () {
+                // Tambahkan navigasi ke halaman bantuan nanti
+              },
             ),
             ListTile(
               leading: const Icon(Icons.info_outline),
@@ -122,11 +140,7 @@ class _ProfilePageState extends State<ProfilePage> {
 
             // --- Tombol Logout ---
             ElevatedButton.icon(
-              onPressed: () {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text("Berhasil keluar dari akun")),
-                );
-              },
+              onPressed: _logout, // Memanggil fungsi logout
               icon: const Icon(Icons.logout),
               label: const Text(
                 "Keluar",
@@ -147,6 +161,7 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
+  // Widget Helper untuk membuat kotak info
   Widget _buildInfoTile({
     required IconData icon,
     required String title,

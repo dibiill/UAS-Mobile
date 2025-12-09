@@ -123,7 +123,7 @@ class _EditTaskPageState extends State<EditTaskPage> {
             const Text("Status", style: TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 6),
             DropdownButtonFormField(
-              value: selectedStatus,
+              initialValue: selectedStatus,
               decoration: inputStyle(""),
               items: statusList
                   .map((e) => DropdownMenuItem(value: e, child: Text(e)))
