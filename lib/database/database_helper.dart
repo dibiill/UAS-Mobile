@@ -19,7 +19,7 @@ class DatabaseHelper {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB,);
+    return await openDatabase(path, version: 1, onCreate: _createDB);
   }
 
   Future _createDB(Database db, int version) async {
@@ -64,7 +64,6 @@ class DatabaseHelper {
       color INTEGER NOT NULL
       )
 ''');
-
   }
 
   // Hash password biar aman
@@ -130,22 +129,13 @@ class DatabaseHelper {
   // UPDATE
   Future<int> updateSchedule(int id, Map<String, dynamic> data) async {
     final db = await instance.database;
-    return await db.update(
-      "schedule",
-      data,
-      where: "id = ?",
-      whereArgs: [id],
-    );
+    return await db.update("schedule", data, where: "id = ?", whereArgs: [id]);
   }
 
   // DELETE
   Future<int> deleteSchedule(int id) async {
     final db = await instance.database;
-    return await db.delete(
-      "schedule",
-      where: "id = ?",
-      whereArgs: [id],
-    );
+    return await db.delete("schedule", where: "id = ?", whereArgs: [id]);
   }
 
   // date picker
@@ -158,41 +148,29 @@ class DatabaseHelper {
   }
 
   // GET ALL SCHEDULES (untuk cek apakah tabel kosong)
-Future<List<Map<String, dynamic>>> getAllSchedules() async {
-  final db = await instance.database;
-  return await db.query("schedule");
-}
+  Future<List<Map<String, dynamic>>> getAllSchedules() async {
+    final db = await instance.database;
+    return await db.query("schedule");
+  }
 
-// NOTES CRUD
-Future<int> insertNote(Map<String, dynamic> data) async {
+  // NOTES CRUD
+  Future<int> insertNote(Map<String, dynamic> data) async {
     final db = await instance.database;
     return await db.insert("notes", data);
   }
 
   Future<List<Map<String, dynamic>>> getNotes() async {
     final db = await instance.database;
-    return await db.query(
-      "notes",
-      orderBy: "id DESC",
-    );
+    return await db.query("notes", orderBy: "id DESC");
   }
 
   Future<int> updateNote(int id, Map<String, dynamic> data) async {
     final db = await instance.database;
-    return await db.update(
-      "notes",
-      data,
-      where: "id = ?",
-      whereArgs: [id],
-    );
+    return await db.update("notes", data, where: "id = ?", whereArgs: [id]);
   }
 
   Future<int> deleteNote(int id) async {
     final db = await instance.database;
-    return await db.delete(
-      "notes",
-      where: "id = ?",
-      whereArgs: [id],
-    );
+    return await db.delete("notes", where: "id = ?", whereArgs: [id]);
   }
 }

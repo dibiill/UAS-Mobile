@@ -52,9 +52,9 @@ class _PomodoroPageState extends State<PomodoroPage> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(isFocusMode
-            ? "Waktunya fokus lagi 🎯"
-            : "Istirahat dulu sebentar ☕"),
+        content: Text(
+          isFocusMode ? "Waktunya fokus lagi 🎯" : "Istirahat dulu sebentar ☕",
+        ),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -68,10 +68,9 @@ class _PomodoroPageState extends State<PomodoroPage> {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final progress =
-        (isFocusMode ? focusTime : breakTime - remainingSeconds) /
-            (isFocusMode ? focusTime : breakTime);
+    final total = isFocusMode ? focusTime : breakTime;
+    final progress = (total - remainingSeconds) / total;
+    final circleValue = isFocusMode ? (1 - progress) : progress;
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FB),
@@ -113,7 +112,7 @@ class _PomodoroPageState extends State<PomodoroPage> {
                     width: 200,
                     height: 200,
                     child: CircularProgressIndicator(
-                      value: 1 - progress,
+                      value: circleValue,
                       strokeWidth: 10,
                       backgroundColor: Colors.grey[300],
                       valueColor: AlwaysStoppedAnimation<Color>(
@@ -147,7 +146,9 @@ class _PomodoroPageState extends State<PomodoroPage> {
                           : const Color(0xFF6C5CE7),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
+                        horizontal: 20,
+                        vertical: 12,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -162,7 +163,9 @@ class _PomodoroPageState extends State<PomodoroPage> {
                       backgroundColor: Colors.grey[400],
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 12),
+                        horizontal: 18,
+                        vertical: 12,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

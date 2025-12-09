@@ -69,10 +69,10 @@ class _ProfilePageState extends State<ProfilePage> {
               backgroundColor: Colors.white,
             ),
             const SizedBox(height: 16),
-            
+
             // --- Nama User (Dinamis) ---
             Text(
-              _userName, 
+              _userName,
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
@@ -81,10 +81,10 @@ class _ProfilePageState extends State<ProfilePage> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
-            
+
             // --- Role (Statis) ---
             const Text(
-              "Member Planify", 
+              "Member Planify",
               style: TextStyle(fontSize: 14, color: Color(0xFF636E72)),
             ),
             const SizedBox(height: 30),
@@ -98,9 +98,9 @@ class _ProfilePageState extends State<ProfilePage> {
             _buildInfoTile(
               icon: Icons.school_outlined,
               title: "Instansi / Sekolah",
-              value: "Universitas Singaperbangsa Karawang", 
+              value: "Universitas Singaperbangsa Karawang",
             ),
-            
+
             const SizedBox(height: 25),
 
             // --- Pengaturan Aplikasi ---
@@ -115,7 +115,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
               ),
             ),
-            const SizedBox(height: 10),  
+            const SizedBox(height: 10),
             ListTile(
               leading: const Icon(Icons.help_outline),
               title: const Text("Bantuan & Panduan"),
