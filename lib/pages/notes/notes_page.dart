@@ -25,7 +25,7 @@ class _NotesPageState extends State<NotesPage> {
     final schedules = await db.getAllSchedules();
 
     scheduleNames = {
-      for (var s in schedules) s["id"]: "${s["title"]} (${s["date"]})"
+      for (var s in schedules) s["id"]: "${s["title"]} (${s["date"]})",
     };
 
     setState(() => notes = n);
@@ -33,10 +33,7 @@ class _NotesPageState extends State<NotesPage> {
 
   String preview(String t) => t.length <= 90 ? t : "${t.substring(0, 90)}…";
 
-  void showDeleteNoteDialog(
-    BuildContext context,
-    int id,
-  ) {
+  void showDeleteNoteDialog(BuildContext context, int id) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -49,9 +46,7 @@ class _NotesPageState extends State<NotesPage> {
             onPressed: () => Navigator.pop(context),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-            ),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () async {
               await DatabaseHelper.instance.deleteNote(id);
               Navigator.pop(context); // tutup dialog
@@ -84,7 +79,10 @@ class _NotesPageState extends State<NotesPage> {
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF6C5CE7),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text("Tambah Catatan", style: TextStyle(color: Colors.white)),
+        label: const Text(
+          "Tambah Catatan",
+          style: TextStyle(color: Colors.white),
+        ),
         onPressed: () async {
           if (await showNoteFormDialog(context) == true) _loadNotes();
         },
@@ -95,7 +93,7 @@ class _NotesPageState extends State<NotesPage> {
         child: notes.isEmpty
             ? const Center(
                 child: Text(
-                  "Belum ada catatan 📝",
+                  "Belum ada catatan",
                   style: TextStyle(color: Colors.grey),
                 ),
               )
@@ -155,28 +153,36 @@ class _NotesPageState extends State<NotesPage> {
 
                                 if (related != null) ...[
                                   const SizedBox(height: 8),
-                                  Row(children: [
-                                    const Icon(Icons.event_note,
-                                        size: 16, color: Color(0xFF6C5CE7)),
-                                    const SizedBox(width: 4),
-                                    Expanded(
-                                      child: Text(
-                                        "Terkait: $related",
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: Color(0xFF6C5CE7),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.event_note,
+                                        size: 16,
+                                        color: Color(0xFF6C5CE7),
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          "Terkait: $related",
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Color(0xFF6C5CE7),
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  ])
-                                ]
+                                    ],
+                                  ),
+                                ],
                               ],
                             ),
                           ),
                         ),
 
                         IconButton(
-                          icon: const Icon(Icons.delete_outline, color: Colors.red),
+                          icon: const Icon(
+                            Icons.delete_outline,
+                            color: Colors.red,
+                          ),
                           onPressed: () {
                             showDeleteNoteDialog(context, item["id"]);
                           },

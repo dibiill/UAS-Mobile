@@ -27,8 +27,18 @@ class _SchedulePageState extends State<SchedulePage> {
 
   String displayDate(DateTime d) {
     const months = [
-      "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-      "Jul", "Agu", "Sep", "Okt", "Nov", "Des"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
     ];
     return "${d.day} ${months[d.month - 1]} ${d.year}";
   }
@@ -92,7 +102,8 @@ class _SchedulePageState extends State<SchedulePage> {
     if (schedules.isEmpty) {
       return const Center(
         child: Text(
-          "Belum ada kegiatan.\nTambahkan kegiatan untuk memulai.",
+          "Belum ada kegiatan",
+          style: TextStyle(color: Colors.grey),
           textAlign: TextAlign.center,
         ),
       );
@@ -110,11 +121,7 @@ class _SchedulePageState extends State<SchedulePage> {
 
         return GestureDetector(
           onTap: () {
-            showEditSchedule(
-              context,
-              item,
-              () async => _loadSchedule(),
-            );
+            showEditSchedule(context, item, () async => _loadSchedule());
           },
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
@@ -127,12 +134,11 @@ class _SchedulePageState extends State<SchedulePage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                
                 Container(
                   width: 6,
                   height: 65,
                   decoration: BoxDecoration(
-                    color: color, // 
+                    color: color, //
                     borderRadius: BorderRadius.circular(4),
                   ),
                 ),
@@ -144,10 +150,7 @@ class _SchedulePageState extends State<SchedulePage> {
                     children: [
                       Text(
                         displayDate(date),
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 4),
 
@@ -168,10 +171,7 @@ class _SchedulePageState extends State<SchedulePage> {
 
                       Text(
                         "${item["room"]} • ${item["detail"]}",
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(fontSize: 13, color: Colors.grey[600]),
                       ),
                     ],
                   ),
@@ -197,10 +197,20 @@ class _SchedulePageState extends State<SchedulePage> {
 
   Widget _buildDatePicker() {
     const months = [
-      "Jan","Feb","Mar","Apr","Mei","Jun",
-      "Jul","Agu","Sep","Okt","Nov","Des"
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "Mei",
+      "Jun",
+      "Jul",
+      "Agu",
+      "Sep",
+      "Okt",
+      "Nov",
+      "Des",
     ];
-    const days = ["Sen","Sel","Rab","Kam","Jum","Sab","Min"];
+    const days = ["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"];
 
     return SizedBox(
       height: 110,
@@ -232,22 +242,30 @@ class _SchedulePageState extends State<SchedulePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(days[date.weekday - 1],
-                      style: TextStyle(
-                          color: sel ? Colors.white : Colors.grey[700])),
+                  Text(
+                    days[date.weekday - 1],
+                    style: TextStyle(
+                      color: sel ? Colors.white : Colors.grey[700],
+                    ),
+                  ),
                   const SizedBox(height: 4),
 
-                  Text("${date.day}",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: sel ? Colors.white : Colors.black,
-                      )),
+                  Text(
+                    "${date.day}",
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: sel ? Colors.white : Colors.black,
+                    ),
+                  ),
                   const SizedBox(height: 4),
 
-                  Text(months[date.month - 1],
-                      style: TextStyle(
-                          color: sel ? Colors.white : Colors.grey[600])),
+                  Text(
+                    months[date.month - 1],
+                    style: TextStyle(
+                      color: sel ? Colors.white : Colors.grey[600],
+                    ),
+                  ),
                 ],
               ),
             ),
